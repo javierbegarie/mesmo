@@ -19,7 +19,10 @@ export default [
       '@nx/enforce-module-boundaries': [
         'error',
         {
-          enforceBuildableLibDependency: true,
+          // This workspace consumes libraries/modules as source (each project
+          // exports src/index.ts via the `@org/source` condition), so apps
+          // legitimately import non-buildable modules like @mesmo/candidates.
+          enforceBuildableLibDependency: false,
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
           depConstraints: [
             {

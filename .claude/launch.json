@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "mesmo-shell",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "dev", "mesmo"],
+      "port": 4200
+    }
+  ]
+}

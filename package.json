@@ -2,13 +2,29 @@
   "name": "@org/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev": "nx serve mesmo",
+    "build": "nx build mesmo",
+    "test": "nx test mesmo",
+    "lint": "nx lint mesmo",
+    "format": "nx format:write"
+  },
   "private": true,
   "dependencies": {
+    "@radix-ui/react-slot": "^1.3.0",
+    "@tailwindcss/vite": "^4.3.2",
+    "@tanstack/react-query": "^5.101.2",
+    "@tanstack/react-router": "^1.170.16",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "express": "^4.21.2",
+    "lucide-react": "^1.22.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-router-dom": "6.30.3"
+    "react-router-dom": "6.30.3",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.2",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@babel/core": "^7.14.5",
