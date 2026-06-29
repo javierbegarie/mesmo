@@ -10,9 +10,6 @@
       "path": "./apps/shop-e2e"
     },
     {
-      "path": "./apps/shop"
-    },
-    {
       "path": "./packages/api/products"
     },
     {
@@ -32,6 +29,12 @@
     },
     {
       "path": "./packages/shared/test-utils"
+    },
+    {
+      "path": "./mesmo/shell"
+    },
+    {
+      "path": "./mesmo/candidates"
     }
   ]
 }

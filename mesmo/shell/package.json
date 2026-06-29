@@ -1,0 +1,12 @@
+{
+  "name": "@mesmo/mesmo",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "mesmo",
+    "tags": [
+      "sccope:shell",
+      "type:app"
+    ]
+  }
+}
