@@ -40,6 +40,9 @@
   "references": [
     {
       "path": "../candidates/tsconfig.lib.json"
+    },
+    {
+      "path": "../ui-kit/tsconfig.lib.json"
     }
   ]
 }

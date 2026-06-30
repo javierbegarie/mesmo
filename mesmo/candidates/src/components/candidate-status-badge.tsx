@@ -1,10 +1,5 @@
 import type { CandidateStatus } from '../util/types';
-
-const STATUS_LABELS: Record<CandidateStatus, string> = {
-  pending: 'Pending',
-  approved: 'Approved',
-  rejected: 'Rejected',
-};
+import { STATUS_LABELS } from '../util/status';
 
 // Semantic colours per status. Plain Tailwind palette utilities keep the badge
 // readable in both light and dark themes.

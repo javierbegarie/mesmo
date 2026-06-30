@@ -1,10 +1,11 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { ArrowLeft, Mail, Phone, Globe, Building2, MapPin } from 'lucide-react';
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router';
-import { Avatar } from '@mesmo/ui-kit';
+import { Avatar, toast } from '@mesmo/ui-kit';
 
 import { CandidateStatusBadge } from '../components/candidate-status-badge';
-import { useCandidate } from '../query/use-candidate';
+import { CandidateStatusDropdown } from '../components/candidate-status-dropdown';
+import { useCandidate } from '../hooks/use-candidate';
 import { useCandidatePosts } from '../query/use-candidate-posts';
 import type { CandidateDetail } from '../util/types';
 
@@ -16,7 +17,28 @@ export function CandidateDetailPage({ id }: { id: string }) {
   const canGoBack = useCanGoBack();
   const navigate = useNavigate();
 
-  const { data: candidate, isPending, isError } = useCandidate(id);
+  const { candidate, isPending, isError } = useCandidate(id);
+
+  // We don't refetch a single candidate — it comes from the backend store. So
+  // any failure to show one (load error or unknown id, including deep links)
+  // means we bounce back to the list with an explanation.
+  const resolved = !isPending;
+  const failed = resolved && (isError || !candidate);
+
+  // Guard so we toast + redirect exactly once (also tames StrictMode's
+  // double-invoked effects in dev).
+  const handled = useRef(false);
+
+  useEffect(() => {
+    if (!failed || handled.current) return;
+    handled.current = true;
+    toast.error(
+      isError
+        ? "We couldn't load that candidate right now."
+        : "That candidate doesn't exist.",
+    );
+    navigate({ to: '/' });
+  }, [failed, isError, navigate]);
 
   // Going back through history returns to the list with its filters (which
   // live in the URL); only fall back to the list route on a fresh deep link.
@@ -36,12 +58,6 @@ export function CandidateDetailPage({ id }: { id: string }) {
 
       {isPending && (
         <p className="text-sm text-muted-foreground">Loading candidate…</p>
-      )}
-
-      {isError && (
-        <p className="text-sm text-destructive">
-          Couldn&apos;t load this candidate.
-        </p>
       )}
 
       {candidate && <CandidateProfile candidate={candidate} />}
@@ -68,6 +84,7 @@ function CandidateProfile({ candidate }: { candidate: CandidateDetail }) {
             Submitted {dateFormatter.format(new Date(candidate.submittedAt))}
           </p>
         </div>
+        <CandidateStatusDropdown candidate={candidate} />
       </header>
 
       <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -140,7 +157,9 @@ function CandidatePosts({ id }: { id: string }) {
       )}
 
       {isError && (
-        <p className="text-sm text-destructive">Couldn&apos;t load posts.</p>
+        <p className="text-sm text-destructive">
+          It was not possible to fetch the candidate posts right now.
+        </p>
       )}
 
       {posts && posts.length === 0 && (

@@ -6,6 +6,7 @@ import {
 import { CandidatesPage, CandidateDetailPage } from '@mesmo/candidates';
 
 import { AppShell } from '@/components/layout/app-shell';
+import { NotFoundPage } from '@/pages/not-found-page';
 
 /** Root route renders the shell chrome; modules mount inside its <Outlet />. */
 const rootRoute = createRootRoute({
@@ -39,7 +40,10 @@ const routeTree = rootRoute.addChildren([
   candidateDetailRoute,
 ]);
 
-export const router = createRouter({ routeTree });
+export const router = createRouter({
+  routeTree,
+  defaultNotFoundComponent: NotFoundPage,
+});
 
 declare module '@tanstack/react-router' {
   interface Register {

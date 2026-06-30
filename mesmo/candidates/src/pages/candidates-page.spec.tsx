@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-router';
 
 import { CandidatesPage } from './candidates-page';
+import { useCandidatesBackendStore } from '../store/candidates-backend';
 import type { ApiUser } from '../util/types';
 
 const SAMPLE_USERS: ApiUser[] = [
@@ -52,6 +53,8 @@ function renderPage() {
 
 describe('CandidatesPage', () => {
   beforeEach(() => {
+    localStorage.clear();
+    useCandidatesBackendStore.setState({ candidates: [], seeded: false });
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => ({
@@ -77,5 +80,20 @@ describe('CandidatesPage', () => {
     );
     expect(screen.getByText('Sincere@april.biz')).toBeTruthy();
     expect(screen.getByText('Romaguera-Crona')).toBeTruthy();
+  });
+
+  it('shows an inline error when the fetch fails', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('network down'))),
+    );
+
+    renderPage();
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(/something went wrong loading candidates/i),
+      ).toBeTruthy(),
+    );
   });
 });

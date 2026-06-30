@@ -29,13 +29,13 @@ export function CandidatesPage() {
         </p>
       )}
 
-      {candidates && candidates.length === 0 && (
+      {!isPending && !isError && candidates.length === 0 && (
         <p className="text-sm text-muted-foreground">
           No candidates match the current filters.
         </p>
       )}
 
-      {candidates && candidates.length > 0 && (
+      {candidates.length > 0 && (
         <ul className="flex flex-col gap-3">
           {candidates.map((candidate) => (
             <li key={candidate.id}>

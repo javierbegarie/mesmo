@@ -1,23 +1,22 @@
 import { useMemo } from 'react';
 
-import { useCandidates } from '../query/use-candidates';
+import { useCandidatesBackend } from './use-candidates-backend';
 import { useFiltersStore } from '../store/filters-store';
 import { filterCandidates } from '../util/filter-candidates';
 
 /**
- * Combines the fetched candidates with the active filter state and returns the
- * query result with `data` narrowed to the filtered list.
+ * Returns the backend candidates with the active filters applied, along with
+ * the loading/error state of the initial seed.
  */
 export function useFilteredCandidates() {
-  const query = useCandidates();
+  const { candidates, isPending, isError } = useCandidatesBackend();
   const text = useFiltersStore((state) => state.text);
   const statuses = useFiltersStore((state) => state.statuses);
 
   const data = useMemo(
-    () =>
-      query.data ? filterCandidates(query.data, { text, statuses }) : undefined,
-    [query.data, text, statuses],
+    () => filterCandidates(candidates, { text, statuses }),
+    [candidates, text, statuses],
   );
 
-  return { ...query, data };
+  return { data, isPending, isError };
 }

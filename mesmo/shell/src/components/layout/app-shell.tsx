@@ -1,4 +1,5 @@
 import { Outlet } from '@tanstack/react-router';
+import { Toaster } from '@mesmo/ui-kit';
 
 import { Footer } from '@/components/layout/footer';
 import { TopBar } from '@/components/layout/top-bar';
@@ -9,12 +10,13 @@ import { TopBar } from '@/components/layout/top-bar';
  */
 export function AppShell() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex h-screen flex-col bg-background">
       <TopBar />
-      <main className="flex-1 overflow-auto">
+      <main className="min-h-0 flex-1 overflow-y-auto">
         <Outlet />
       </main>
       <Footer />
+      <Toaster />
     </div>
   );
 }
