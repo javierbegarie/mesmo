@@ -5,7 +5,7 @@
   "nx": {
     "name": "mesmo",
     "tags": [
-      "sccope:shell",
+      "scope:shell",
       "type:app"
     ]
   }
