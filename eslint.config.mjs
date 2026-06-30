@@ -24,10 +24,25 @@ export default [
           // legitimately import non-buildable modules like @mesmo/candidates.
           enforceBuildableLibDependency: false,
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
+          // Allowed import order: type:library => type:module => type:app.
+          // A project may depend on its own tier and any lower (more reusable)
+          // tier, never a higher one (e.g. a library cannot import a module).
           depConstraints: [
             {
-              sourceTag: '*',
-              onlyDependOnLibsWithTags: ['*'],
+              sourceTag: 'type:app',
+              onlyDependOnLibsWithTags: [
+                'type:app',
+                'type:module',
+                'type:library',
+              ],
+            },
+            {
+              sourceTag: 'type:module',
+              onlyDependOnLibsWithTags: ['type:module', 'type:library'],
+            },
+            {
+              sourceTag: 'type:library',
+              onlyDependOnLibsWithTags: ['type:library'],
             },
           ],
         },

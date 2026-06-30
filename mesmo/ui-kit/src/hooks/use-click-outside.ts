@@ -4,9 +4,7 @@ import { useEffect, useRef } from 'react';
  * Calls `onOutside` when a pointer/touch event lands outside the returned ref.
  * Headless helper for dismissable overlays such as dropdown panels.
  */
-export function useClickOutside<T extends HTMLElement>(
-  onOutside: () => void,
-) {
+export function useClickOutside<T extends HTMLElement>(onOutside: () => void) {
   const ref = useRef<T>(null);
 
   useEffect(() => {

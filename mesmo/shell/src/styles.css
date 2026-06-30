@@ -1,9 +1,10 @@
 @import 'tailwindcss';
 
-/* Tailwind v4 scans the imported module graph automatically, but the
-   Candidates module lives outside this project's folder, so we register
-   its source explicitly to pick up its utility classes. */
+/* Tailwind v4 scans the imported module graph automatically, but our modules
+   live outside this project's folder, so we register their sources explicitly
+   to pick up their utility classes. */
 @source '../../candidates/src';
+@source '../../ui-kit/src';
 
 @custom-variant dark (&:is(.dark *));
 

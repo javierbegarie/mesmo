@@ -8,6 +8,9 @@
     },
     {
       "path": "./mesmo/candidates"
+    },
+    {
+      "path": "./mesmo/ui-kit"
     }
   ]
 }

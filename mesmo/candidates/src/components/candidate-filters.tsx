@@ -1,8 +1,8 @@
 import { Search } from 'lucide-react';
+import { MultiSelect, type MultiSelectOption } from '@mesmo/ui-kit';
 
 import { useFiltersStore } from '../store/filters-store';
 import type { CandidateStatus } from '../util/types';
-import { MultiSelect, type MultiSelectOption } from './multi-select';
 
 const STATUS_OPTIONS: MultiSelectOption[] = [
   { label: 'Pending', value: 'pending' },
