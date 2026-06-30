@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "nx serve mesmo",
     "build": "nx build mesmo",
-    "test": "nx test mesmo",
-    "lint": "nx lint mesmo",
+    "test": "nx run-many -t test --exclude=@mesmo/source",
+    "lint": "nx run-many -t lint --exclude=@mesmo/source",
     "format": "nx format:write"
   },
   "private": true,

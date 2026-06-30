@@ -1,260 +1,163 @@
-# Nx React Repository
+# Mesmo
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+> **Mesmo: Porque não é o contrário.**
 
-✨ A repository showcasing key [Nx](https://nx.dev) features for React monorepos ✨
-🚀 If you haven't connected to Nx Cloud yet, [complete your setup here](https://cloud.nx.app/get-started). Get faster builds with remote caching, distributed task execution, and self-healing CI. [See how your workspace can benefit](#nx-cloud).
+A small **selection-process** app: browse candidates, filter them, open a candidate's
+detail with their posts, and move each one through the pipeline
+(`pending → approved | rejected`).
 
-## 📦 Project Overview
+Built as an **Nx** monorepo with **React 19**, **TanStack Router**, **TanStack Query**,
+**Tailwind v4**, **shadcn/ui** and **Zustand**. The backend is read-only
+([jsonplaceholder](https://jsonplaceholder.typicode.com)), so status changes are
+persisted client-side in a mock backend (Zustand + `localStorage`).
 
-This repository demonstrates a production-ready React monorepo with:
-
-- **2 Applications**
-
-  - `shop` - React e-commerce application with product listings and detail views
-  - `api` - Backend API serving product data
-
-- **7 Libraries**
-
-  - `@org/shop-feature-products` - Product listing feature (React)
-  - `@org/shop-feature-product-detail` - Product detail feature (React)
-  - `@org/shop-data` - Data access layer for shop features
-  - `@org/shop-shared-ui` - Shared UI components
-  - `@org/models` - Shared data models
-  - `@org/api-products` - API product service library
-  - `@org/shared-test-utils` - Shared testing utilities
-
-- **E2E Testing**
-  - `shop-e2e` - Playwright tests for the shop application
-
-## 🚀 Quick Start
+## Getting started (from zero)
 
 ```bash
-# Clone the repository
-git clone <your-fork-url>
-cd <your-repository-name>
-
-# Install dependencies
-npm install
-
-# Serve the React shop application (this will simultaneously serve the API backend)
-npx nx run @org/shop:serve
-
-# ...or you can serve the API separately
-npx nx run @org/api:serve
-
-# Build all projects
-npx nx run-many -t build
-
-# Run tests
-npx nx run-many -t test
-
-# Lint all projects
-npx nx run-many -t lint
-
-# Run e2e tests
-npx nx run @org/shop-e2e:e2e
-
-# Run tasks in parallel
-
-npx nx run-many -t lint test build e2e --parallel=3
-
-# Visualize the project graph
-npx nx graph
+npm install      # install dependencies
+npm run dev      # start the shell app on http://localhost:4200
 ```
 
-## ⭐ Featured Nx Capabilities
+`npm run dev` runs the `mesmo` shell, which mounts the Candidates module at `/`.
 
-This repository showcases several powerful Nx features:
-
-### 1. 🔒 Module Boundaries
-
-Enforces architectural constraints using tags. Each project has specific dependencies it can use:
-
-- `scope:shared` - Can be used by all projects
-- `scope:shop` - Shop-specific libraries
-- `scope:api` - API-specific libraries
-- `type:feature` - Feature libraries
-- `type:data` - Data access libraries
-- `type:ui` - UI component libraries
-
-**Try it out:**
+## Commands of interest
 
 ```bash
-# See the current project graph and boundaries
-npx nx graph
+# Run the whole workspace (all projects)
+npx nx run-many -t typecheck lint test      # verify everything
+npx nx run-many -t build                     # build everything
 
-# View a specific project's details
-npx nx show project @org/shop --web
+# A single project (mesmo | @mesmo/candidates | @mesmo/ui-kit)
+npx nx test @mesmo/ui-kit                     # unit tests for the ui-kit
+npx nx lint @mesmo/candidates                 # lint one project
+npx nx build mesmo                            # production build of the shell
+
+# Only what your change affects (great for CI)
+npx nx affected -t test lint
+
+# Explore the workspace
+npx nx graph                                  # interactive dependency graph
+npx nx show project mesmo                     # a project's targets & metadata
+npx nx sync                                   # refresh TS project references
+
+# Convenience scripts (package.json) — all scoped to the shell
+npm run build | npm run test | npm run lint | npm run format
 ```
 
-[Learn more about module boundaries →](https://nx.dev/docs/features/enforce-module-boundaries)
+## Why Nx
 
-### 2. 🎭 Playwright E2E Testing
+Nx gives a small app the structure to grow into a large one **without** a rewrite:
 
-End-to-end testing with Playwright is pre-configured:
+- **Solid, enforced structure.** Projects are tagged (`type:app | type:module | type:library`)
+  and a single ESLint rule enforces the allowed dependency direction
+  (`type:library → type:module → type:app`). The architecture is checked by the
+  linter, not by convention or code review.
+- **Scalability.** Each feature is its own project (today a library, tomorrow a
+  micro-frontend) with clear inputs/outputs. The project graph plus
+  `nx affected` means CI only rebuilds/retests what actually changed, so the
+  pipeline stays fast as the codebase grows.
+- **Maintainability.** One consistent CLI for every task (`build`, `test`, `lint`,
+  `typecheck`), generators that scaffold projects the same way every time, and
+  task caching that keeps local/CI runs cheap.
+- **AI readiness.** Nx ships agent-facing context out of the box — `AGENTS.md` /
+  `CLAUDE.md`, an MCP server, and skills — so coding agents can query the project
+  graph, find the right generator, and respect module boundaries instead of
+  guessing. The same metadata that helps humans navigate the repo helps agents
+  do the same.
 
-```bash
-# Run e2e tests
-npx nx run @org/shop-e2e:e2e
+## Projects
 
-# Run e2e tests in CI mode
-npx nx run @org/shop-e2e:e2e-ci
-```
+All projects live under `mesmo/` and are consumed **as source** (each exports
+`src/index.ts`), so there's no build step between them in dev.
 
-[Learn more about E2E testing →](https://nx.dev/docs/technologies/test-tools/playwright)
+| Project            | Tags                            | Role                              |
+| ------------------ | ------------------------------- | --------------------------------- |
+| `mesmo` (shell)    | `scope:shell`, `type:app`       | Host application / chrome         |
+| `@mesmo/candidates`| `scope:candidates`, `type:module` | The Candidates feature module   |
+| `@mesmo/ui-kit`    | `scope:components`, `type:library`| Agnostic, reusable UI            |
 
-### 3. ⚡ Vitest for Unit Testing
+**`mesmo` — the shell (`type:app`).** The host that holds every module. Top bar
+(branding + live clock + a stubbed settings gear), a pinned footer, the TanStack
+Query provider, the app-wide `<Toaster/>`, and the router.
+_Decisions:_ **code-based** TanStack Router (no codegen) where modules mount through
+an `<Outlet/>`; the shell owns Tailwind/shadcn setup and the `404` page.
 
-Fast unit testing with Vitest for React libraries:
+**`@mesmo/candidates` — the feature module (`type:module`).** Everything candidate-related:
+list + filters, detail view + posts, and status transitions.
+_Decisions:_ a **mock backend** (`Zustand` + `persist`/localStorage) seeded once from
+the fetch is the source of truth for mutable data; filters live in a Zustand store
+synced to the **URL** via a small custom middleware; the status/submission-date are
+**deterministically derived from the candidate id**; allowed transitions come from a
+typed **state machine** map (array _or_ `(candidate) => statuses[]`) to avoid
+hardcoding the flow.
 
-```bash
-# Test a specific library
-npx nx run @org/shop-data:test
+**`@mesmo/ui-kit` — the design library (`type:library`).** Self-contained components
+with no app knowledge: `MultiSelect`, `Dropdown`, `Avatar`, `Pagination`, `Toaster`
+(+ `toast`), and the `useClickOutside` hook.
+_Decisions:_ kept framework/domain-agnostic so any project can reuse them; the toast
+store is a `Symbol.for(...)` **global singleton** so a single `<Toaster/>` works even
+though the library is consumed as source across projects.
 
-# Test all projects
-npx nx run-many -t test
-```
+## Mock backend & resetting data
 
-[Learn more about Vite testing →](https://nx.dev/docs/technologies/build-tools/vite)
+There's no real backend, so writes (status changes) are persisted in a **Zustand +
+`localStorage`** store under the key **`mesmo.candidates-backend`**. The API fetch
+only **seeds** this store the first time; after that, the store is the source of
+truth and the network call is skipped.
 
-### 4. 🔧 Self-Healing CI
+**Resetting:** the **gear menu** in the top bar has a **"Clear saved data"** action
+that removes the `mesmo.*` keys and reloads, which re-seeds the candidates from the
+API. Use it to get back to the original 10 users.
 
-The CI pipeline includes `nx fix-ci` which automatically identifies and suggests fixes for common issues:
+**Trying pagination with a large dataset:** because there are only 10 users, the
+paginator stays hidden (it appears at 2+ pages, 30 per page). To exercise it, you can
+seed a bigger dataset by hand — e.g. in the browser console, set
+`mesmo.candidates-backend` to a `{ "state": { "candidates": [ …2000 items… ], "seeded": true }, "version": 0 }`
+payload and reload, then **"Clear saved data"** to flush it.
 
-```bash
-# In CI, this command provides automated fixes
-npx nx fix-ci
-```
+> ⚠️ **Pagination and filtering are client-side.** The whole candidate set lives in
+> the store in memory and is filtered/paged in the browser. That's intentional given
+> the mock backend (seeded once, with local status writes), but it means a very large
+> injected dataset (e.g. 2000+) is held and processed entirely client-side — fine for
+> a demo, but not how a real server-paginated list would behave.
 
-This feature helps maintain a healthy CI pipeline by automatically detecting and suggesting solutions for:
+## Test strategy
 
-- Missing dependencies
-- Incorrect task configurations
-- Cache invalidation issues
-- Common build failures
+Given the time box, testing was prioritised by impact rather than coverage numbers:
 
-[Learn more about self-healing CI →](https://nx.dev/docs/features/ci-features/self-healing-ci)
+- **Integration tests first, on the most important feature** — the Candidate list
+  with the status dropdown (`pending → approved`, and a rejected candidate that
+  can't change). This is the core user journey, so it's covered end-to-end
+  (router + query + store + UI).
+- **Unit tests on a `ui-kit` component** (`MultiSelect`) — library components are
+  likely to be reused by many developers, so their quality has to be rock solid.
+  Tests cover rendering options, selecting multiple values, and unselecting.
+- **E2E (not implemented, time permitting)** — would be **Playwright**, asserting
+  that **status changes persist across reloads** (the localStorage mock backend).
 
-## 📁 Project Structure
+## Prompts
 
-```
-├── apps/
-│   ├── shop/           [scope:shop]    - React e-commerce app
-│   ├── shop-e2e/                       - E2E tests for shop
-│   └── api/            [scope:api]     - Backend API
-├── packages/
-│   ├── shop/
-│   │   ├── feature-products/        [scope:shop,type:feature] - Product listing
-│   │   ├── feature-product-detail/  [scope:shop,type:feature] - Product details
-│   │   ├── data/                    [scope:shop,type:data]    - Data access
-│   │   └── shared-ui/               [scope:shop,type:ui]      - UI components
-│   ├── api/
-│   │   └── products/    [scope:api]    - Product service
-│   └── shared/
-│       ├── models/      [scope:shared,type:data] - Shared models
-│       └── test-utils/  [scope:shared]           - Testing utilities
-├── nx.json             - Nx configuration
-├── tsconfig.json       - TypeScript configuration
-└── eslint.config.mjs   - ESLint with module boundary rules
-```
+This project was built conversationally. Every prompt from the session, with a
+summary of the work each one produced, is documented in **[PROMPTS.md](./PROMPTS.md)**.
 
-## 🏷️ Understanding Tags
+## Notes & intentional gaps
 
-This repository uses tags to enforce module boundaries:
+A few conscious trade-offs, given the time-box and the brief's "don't over-engineer" note:
 
-| Project                 | Tags                         | Can Import From              |
-| ----------------------- | ---------------------------- | ---------------------------- |
-| `shop`                  | `scope:shop`                 | `scope:shop`, `scope:shared` |
-| `api`                   | `scope:api`                  | `scope:api`, `scope:shared`  |
-| `shop-feature-products` | `scope:shop`, `type:feature` | `scope:shop`, `scope:shared` |
-| `shop-data`             | `scope:shop`, `type:data`    | `scope:shared`               |
-| `models`                | `scope:shared`, `type:data`  | Nothing (base library)       |
-
-## 📚 Useful Commands
-
-```bash
-# Project exploration
-npx nx graph                                    # Interactive dependency graph
-npx nx list                                     # List installed plugins
-npx nx show project @org/shop --web                 # View project details
-
-# Development
-npx nx run @org/shop:serve                              # Serve React app
-npx nx run @org/api:serve                               # Serve backend API
-npx nx run @org/shop:build                              # Build React app
-npx nx run @org/shop-data:test                          # Test a specific library
-npx nx run @org/shop-feature-products:lint              # Lint a specific library
-
-# Running multiple tasks
-npx nx run-many -t build                       # Build all projects
-npx nx run-many -t test --parallel=3          # Test in parallel
-npx nx run-many -t lint test build            # Run multiple targets
-
-# Affected commands (great for CI)
-npx nx affected -t build                       # Build only affected projects
-npx nx affected -t test                        # Test only affected projects
-```
-
-## 🎯 Adding New Features
-
-### Generate a new React application:
-
-```bash
-npx nx g @nx/react:app my-app
-```
-
-### Generate a new React library:
-
-```bash
-npx nx g @nx/react:lib my-lib
-```
-
-### Generate a new React component:
-
-```bash
-npx nx g @nx/react:component my-component --project=my-lib
-```
-
-### Generate a new API library:
-
-```bash
-npx nx g @nx/node:lib my-api-lib
-```
-
-You can use `npx nx list` to see all available plugins and `npx nx list <plugin-name>` to see all generators for a specific plugin.
-
-## Nx Cloud
-
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/docs/features/ci-features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/docs/features/ci-features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/docs/features/ci-features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/docs/features/ci-features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/docs/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## 🔗 Learn More
-
-- [Nx Documentation](https://nx.dev/docs)
-- [Crafting Your Workspace Tutorial](https://nx.dev/docs/getting-started/tutorials/crafting-your-workspace)
-- [Module Boundaries](https://nx.dev/docs/features/enforce-module-boundaries)
-- [Playwright Testing](https://nx.dev/docs/technologies/test-tools/playwright)
-- [Vite](https://nx.dev/docs/technologies/build-tools/vite)
-- [Docker Integration](https://nx.dev/docs/guides/nx-release/release-docker-images)
-- [Nx Cloud](https://nx.dev/nx-cloud)
-
-## 💬 Community
-
-Join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [X (Twitter)](https://twitter.com/nxdevtools)
-- [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [YouTube](https://www.youtube.com/@nxdevtools)
-- [Blog](https://nx.dev/blog)
+- **Pagination** — the list paginates **client-side** over the filtered candidates
+  (page size 30), with a sticky paginator shown only when there are 2+ pages. It's
+  client-side because the mock-backend store is the source of truth (seeded once,
+  with local status writes + client filtering), so server `_page`/`_limit` wouldn't
+  fit. JSONPlaceholder only returns 10 users, so in practice it stays on one page
+  and the paginator is hidden — but it's correct for larger datasets.
+- **shadcn/ui coverage** — shadcn is set up (`mesmo/shell/components.json`) and used for
+  primitives (e.g. `Button`). A few components shadcn doesn't ship (or that would pull in
+  extra dependencies) are hand-built in `@mesmo/ui-kit` as agnostic, shadcn-styled components:
+  - **`MultiSelect`** — shadcn has no multi-select (you compose `Popover` + `Command`); a
+    self-contained one keeps the library dependency-light.
+  - **`Dropdown`** (status changer) — a minimal menu instead of shadcn's `DropdownMenu`, to
+    avoid extra Radix dependencies in the shared library.
+  - **`Avatar`** — shadcn's `Avatar` is image-first; we needed an initials/icon **placeholder**.
+  - **`Toaster` / `toast`** — a tiny toast store instead of pulling in `sonner`.
+- **E2E tests** — not implemented (see [Test strategy](#test-strategy)). Would be Playwright,
+  asserting status changes persist across reloads.

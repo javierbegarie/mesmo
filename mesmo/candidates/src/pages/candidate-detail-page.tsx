@@ -46,11 +46,11 @@ export function CandidateDetailPage({ id }: { id: string }) {
     canGoBack ? router.history.back() : navigate({ to: '/' });
 
   return (
-    <section className="mx-auto w-full max-w-3xl p-6">
+    <section className="mx-auto flex h-full w-full max-w-6xl flex-col p-6">
       <button
         type="button"
         onClick={goBack}
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="mb-6 inline-flex shrink-0 items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" />
         Back to candidates
@@ -60,9 +60,14 @@ export function CandidateDetailPage({ id }: { id: string }) {
         <p className="text-sm text-muted-foreground">Loading candidate…</p>
       )}
 
-      {candidate && <CandidateProfile candidate={candidate} />}
-
-      {candidate && <CandidatePosts id={id} />}
+      {candidate && (
+        <div className="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row">
+          <div className="lg:w-1/2">
+            <CandidateProfile candidate={candidate} />
+          </div>
+          <CandidatePosts id={id} />
+        </div>
+      )}
     </section>
   );
 }
@@ -147,35 +152,39 @@ function CandidatePosts({ id }: { id: string }) {
   const { data: posts, isPending, isError } = useCandidatePosts(id);
 
   return (
-    <div className="mt-8">
-      <h2 className="mb-3 text-lg font-semibold tracking-tight">
+    <div className="flex min-h-0 flex-col lg:w-1/2">
+      <h2 className="mb-3 shrink-0 text-lg font-semibold tracking-tight">
         Posts{posts ? ` (${posts.length})` : ''}
       </h2>
 
-      {isPending && (
-        <p className="text-sm text-muted-foreground">Loading posts…</p>
-      )}
+      <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+        {isPending && (
+          <p className="text-sm text-muted-foreground">Loading posts…</p>
+        )}
 
-      {isError && (
-        <p className="text-sm text-destructive">
-          It was not possible to fetch the candidate posts right now.
-        </p>
-      )}
+        {isError && (
+          <p className="text-sm text-destructive">
+            It was not possible to fetch the candidate posts right now.
+          </p>
+        )}
 
-      {posts && posts.length === 0 && (
-        <p className="text-sm text-muted-foreground">No posts yet.</p>
-      )}
+        {posts && posts.length === 0 && (
+          <p className="text-sm text-muted-foreground">No posts yet.</p>
+        )}
 
-      {posts && posts.length > 0 && (
-        <ul className="flex flex-col gap-3">
-          {posts.map((post) => (
-            <li key={post.id} className="rounded-lg border bg-card p-4">
-              <h3 className="font-medium capitalize">{post.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{post.body}</p>
-            </li>
-          ))}
-        </ul>
-      )}
+        {posts && posts.length > 0 && (
+          <ul className="flex flex-col gap-3">
+            {posts.map((post) => (
+              <li key={post.id} className="rounded-lg border bg-card p-4">
+                <h3 className="font-medium capitalize">{post.title}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {post.body}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
