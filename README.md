@@ -20,6 +20,20 @@ npm run dev      # start the shell app on http://localhost:4200
 
 `npm run dev` runs the `mesmo` shell, which mounts the Candidates module at `/`.
 
+### Or with Docker
+
+The app is a static SPA (no server-side code, no secrets — it calls the public
+JSONPlaceholder API straight from the browser), so it's just a multi-stage build:
+Node + Nx produce `mesmo/shell/dist`, then nginx serves it.
+
+```bash
+docker build -t mesmo .
+docker run -p 8080:80 mesmo      # open http://localhost:8080
+```
+
+`nginx.conf` falls back every path to `index.html` so client-side routes like
+`/candidates/1` work on a direct hit or refresh, not just in-app navigation.
+
 ## Commands of interest
 
 ```bash
