@@ -3,7 +3,7 @@ import {
   createRoute,
   createRouter,
 } from '@tanstack/react-router';
-import { CandidatesPage } from '@mesmo/candidates';
+import { CandidatesPage, CandidateDetailPage } from '@mesmo/candidates';
 
 import { AppShell } from '@/components/layout/app-shell';
 
@@ -22,7 +22,22 @@ const candidatesRoute = createRoute({
   component: CandidatesPage,
 });
 
-const routeTree = rootRoute.addChildren([candidatesRoute]);
+/** Detail view for a single candidate. */
+const candidateDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/candidates/$id',
+  component: CandidateDetailRoute,
+});
+
+function CandidateDetailRoute() {
+  const { id } = candidateDetailRoute.useParams();
+  return <CandidateDetailPage id={id} />;
+}
+
+const routeTree = rootRoute.addChildren([
+  candidatesRoute,
+  candidateDetailRoute,
+]);
 
 export const router = createRouter({ routeTree });
 

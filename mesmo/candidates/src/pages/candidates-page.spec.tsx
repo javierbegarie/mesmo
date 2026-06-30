@@ -1,6 +1,12 @@
-import type { ReactNode } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  RouterProvider,
+  createMemoryHistory,
+  createRootRoute,
+  createRoute,
+  createRouter,
+} from '@tanstack/react-router';
 
 import { CandidatesPage } from './candidates-page';
 import type { ApiUser } from '../util/types';
@@ -9,17 +15,38 @@ const SAMPLE_USERS: ApiUser[] = [
   {
     id: 1,
     name: 'Leanne Graham',
+    username: 'Bret',
     email: 'Sincere@april.biz',
-    company: { name: 'Romaguera-Crona' },
+    phone: '1-770-736-8031',
+    website: 'hildegard.org',
+    address: { city: 'Gwenborough' },
+    company: { name: 'Romaguera-Crona', catchPhrase: 'Multi-layered client-server' },
   },
 ];
 
-function renderWithQuery(ui: ReactNode) {
+function renderPage() {
+  const rootRoute = createRootRoute();
+  const indexRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/',
+    component: CandidatesPage,
+  });
+  const detailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/candidates/$id',
+    component: () => null,
+  });
+  const router = createRouter({
+    routeTree: rootRoute.addChildren([indexRoute, detailRoute]),
+    history: createMemoryHistory({ initialEntries: ['/'] }),
+  });
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
+    <QueryClientProvider client={client}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
   );
 }
 
@@ -39,10 +66,10 @@ describe('CandidatesPage', () => {
   });
 
   it('renders the heading and the fetched candidate details', async () => {
-    renderWithQuery(<CandidatesPage />);
+    renderPage();
 
     expect(
-      screen.getByRole('heading', { name: /candidates/i }),
+      await screen.findByRole('heading', { name: /candidates/i }),
     ).toBeTruthy();
 
     await waitFor(() =>
